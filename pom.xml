@@ -7,15 +7,15 @@
   <packaging>jar</packaging>
 
   <scm>
-    <connection>scm:git:https://scm.ostfalia.de/scm/git/commons/sonia-commons-bigbluebutton</connection>
-    <developerConnection>scm:git:https://scm.ostfalia.de/scm/git/commons/sonia-commons-bigbluebutton</developerConnection>
-    <url>https://scm.ostfalia.de/scm/git/commons/sonia-commons-bigbluebutton</url>
+    <connection>scm:git:https://scm.ostfalia.de/scm/git/commons/sonia-app-bbb2influxdb</connection>
+    <developerConnection>scm:git:https://scm.ostfalia.de/scm/git/commons/sonia-app-bbb2influxdb</developerConnection>
+    <url>https://scm.ostfalia.de/scm/git/commons/sonia-app-bbb2influxdb</url>
     <tag>HEAD</tag>
   </scm>
   
   <ciManagement>
     <system>jenkins</system>
-    <url>https://ci.ostfalia.de/jenkins/job/sonia-commons-bigbluebutton</url>
+    <url>https://ci.ostfalia.de/jenkins/job/sonia-app-bbb2influxdb</url>
   </ciManagement>
   
   <developers>
