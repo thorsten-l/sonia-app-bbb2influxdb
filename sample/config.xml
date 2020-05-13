@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+  <configName>all.bbb</configName>
+  <interval>60</interval>
+  <dbUrl>http://localhost:8086/write?db=bbb</dbUrl>
+  <dbUser>influxdb</dbUser>
+  <dbPassword>...your...influxdb...password...</dbPassword>
+  <hosts>
+    <host>
+      <apiUrl>https://node1.sample.de/bigbluebutton/api/</apiUrl>
+      <hostname>node1.bbb</hostname>
+      <secret>...your...server...secret...</secret>
+    </host>
+    <host>
+      <apiUrl>https://node2.sample.de/bigbluebutton/api/</apiUrl>
+      <hostname>node2.bbb</hostname>
+      <secret>..your...server...secret...</secret>
+    </host>
+    <host>
+      <apiUrl>https://node3.sample.de/bigbluebutton/api/</apiUrl>
+      <hostname>node3.bbb</hostname>
+      <secret>..your...server...secret...</secret>
+    </host>
+  </hosts>
+</configuration>
