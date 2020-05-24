@@ -64,10 +64,19 @@ public class Statistics
           }
         }
         
+        if (!usersPerOrigin.containsKey(origin))
+        {
+          usersPerOrigin.put(origin, 0l);
+        }
+        
         long originCounter = usersPerOrigin.get(origin);
         originCounter+=meeting.getParticipantCount();
         usersPerOrigin.put(origin, originCounter);
         
+        if (!allUsersPerOrigin.containsKey(origin))
+        {
+          allUsersPerOrigin.put(origin, 0l);
+        }
         originCounter = allUsersPerOrigin.get(origin);
         originCounter+=meeting.getParticipantCount();
         allUsersPerOrigin.put(origin, originCounter);

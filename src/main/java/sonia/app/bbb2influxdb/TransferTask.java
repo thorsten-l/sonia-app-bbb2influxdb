@@ -97,17 +97,21 @@ public class TransferTask extends TimerTask
         message += "viewerOnly,host=" + hostname + " value=" + statistics.getNumberOfViewerOnlyStreams() + "\n";
         message += "largestConference,host=" + hostname + " value=" + statistics.getLargestConference() + "\n";
         message += "uniqueUsers,host=" + hostname + " value=" + Statistics.getNumberOfUniqueUsers(hostname) + "\n";
-        
-        message += "usersPerOrigin,host=" + hostname;
-        
+                
         HashMap<String, Long> usersPerOrigin = statistics.getUsersPerOrigin();
         
-        for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+        if ( !usersPerOrigin.isEmpty() )
         {
-          long users = usersPerOrigin.get(origin);
-          message += " " + origin + "=" + users;
+          char seperator = ' ';
+          message += "usersPerOrigin,host=" + hostname;
+          for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+          {
+            long users = usersPerOrigin.get(origin);
+            message += seperator + origin + "=" + users;
+            seperator = ',';
+          }
+          message += "\n";
         }
-        message += "\n";
       }
       catch (Exception e)
       {
@@ -130,17 +134,22 @@ public class TransferTask extends TimerTask
       message += "uniqueUsers,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsers() + "\n";
       message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueMeetings() + "\n";
 
-      message += "usersPerOrigin,host=" + config.getConfigName();
         
       HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
-        
-      for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
-      {
-        long users = usersPerOrigin.get(origin);
-        message += " " + origin + "=" + users;
-      }
-      message += "\n";
 
+      if ( !usersPerOrigin.isEmpty() )
+      {
+        message += "usersPerOrigin,host=" + config.getConfigName();
+        char seperator = ' ';
+        for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+        {
+          long users = usersPerOrigin.get(origin);
+          message += seperator + origin + "=" + users;
+          seperator = ',';
+        }
+        message += "\n";
+      }
+      
       System.out.println(message);
 
       HttpURLConnection connection = null;
