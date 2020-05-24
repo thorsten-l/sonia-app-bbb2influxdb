@@ -17,10 +17,15 @@ public class Statistics
   private static final HashMap<String, String> uniqueUsers = new HashMap();
   private static final HashMap<String, HashMap<String, String>> uniqueUsersPerHost = new HashMap();
   private static final HashMap<String, String> uniqueMeetings = new HashMap();
+  
+  @Getter
+  private static final HashMap<String, Long> allUsersPerOrigin = new HashMap();
 
   Statistics(List<Meeting> meetings, String hostname )
   {
     HashMap<String, String> uniqueUsersForHost = uniqueUsersPerHost.get(hostname);
+    usersPerOrigin.clear();
+
     if ( uniqueUsersForHost == null )
     {
       uniqueUsersForHost = new HashMap<String, String>();
@@ -38,6 +43,27 @@ public class Statistics
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
+        
+        String origin = "unknown";
+        
+        MeetingMetadata metaData = meeting.getMetadata();
+        if ( metaData != null && metaData.getOrigin() != null )
+        {
+          String o = metaData.getOrigin().toLowerCase().trim();
+          if ( o.length() > 0 )
+          {
+            origin = o;
+          }
+        }
+        
+        long originCounter = usersPerOrigin.get(origin);
+        originCounter+=meeting.getParticipantCount();
+        usersPerOrigin.put(origin, originCounter);
+        
+        originCounter = allUsersPerOrigin.get(origin);
+        originCounter+=meeting.getParticipantCount();
+        allUsersPerOrigin.put(origin, originCounter);
+
         for (Attendee attendee : meeting.getAttendees())
         {
           if (attendee.hasVideo())
@@ -94,8 +120,17 @@ public class Statistics
   {
     uniqueUsers.clear();
     uniqueMeetings.clear();
+    allUsersPerOrigin.clear();
   }
 
+  public static void clearOrigins()
+  {
+    allUsersPerOrigin.clear();
+  }
+  
+  @Getter
+  private HashMap<String, Long> usersPerOrigin = new HashMap();
+  
   @Getter
   private int numberOfMeetings;
 

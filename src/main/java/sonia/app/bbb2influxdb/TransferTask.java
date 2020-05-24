@@ -8,8 +8,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TimerTask;
-import lombok.Getter;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +68,8 @@ public class TransferTask extends TimerTask
     int numberOfListenOnlyStreams = 0;
     int numberOfViewerOnlyStreams = 0;
 
+    Statistics.clearOrigins();
+    
     for (Host host : config.getHosts())
     {
       String hostname = host.getHostname();
@@ -95,6 +97,17 @@ public class TransferTask extends TimerTask
         message += "viewerOnly,host=" + hostname + " value=" + statistics.getNumberOfViewerOnlyStreams() + "\n";
         message += "largestConference,host=" + hostname + " value=" + statistics.getLargestConference() + "\n";
         message += "uniqueUsers,host=" + hostname + " value=" + Statistics.getNumberOfUniqueUsers(hostname) + "\n";
+        
+        message += "usersPerOrigin,host=" + hostname;
+        
+        HashMap<String, Long> usersPerOrigin = statistics.getUsersPerOrigin();
+        
+        for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+        {
+          long users = usersPerOrigin.get(origin);
+          message += " " + origin + "=" + users;
+        }
+        message += "\n";
       }
       catch (Exception e)
       {
@@ -117,6 +130,16 @@ public class TransferTask extends TimerTask
       message += "uniqueUsers,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsers() + "\n";
       message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueMeetings() + "\n";
 
+      message += "usersPerOrigin,host=" + config.getConfigName();
+        
+      HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
+        
+      for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+      {
+        long users = usersPerOrigin.get(origin);
+        message += " " + origin + "=" + users;
+      }
+      message += "\n";
 
       System.out.println(message);
 
