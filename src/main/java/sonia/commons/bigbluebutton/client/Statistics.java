@@ -39,6 +39,10 @@ public class Statistics
       uniqueUsersPerHost.put(hostname, uniqueUsersForHost);
     }
 
+    usersPerOrigin.put( "unknown", 0l );
+    usersPerOrigin.put( "moodle", 0l );
+    usersPerOrigin.put( "greenlight", 0l );
+    
     if (meetings != null)
     {
       numberOfMeetings = meetings.size();
@@ -148,6 +152,9 @@ public class Statistics
   public static void clearOrigins()
   {
     allUsersPerOrigin.clear();
+    allUsersPerOrigin.put( "unknown", 0l );
+    allUsersPerOrigin.put( "moodle", 0l );
+    allUsersPerOrigin.put( "greenlight", 0l );
   }
   
   @Getter
