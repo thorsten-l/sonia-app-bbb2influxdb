@@ -23,6 +23,7 @@ public class Statistics
 
   private static final HashMap<String, HashMap<String, String>> uniqueUsersPerHost = new HashMap();
 
+  @Getter
   private static final HashMap<String, String> uniqueMeetings = new HashMap();
   
   @Getter
@@ -49,9 +50,7 @@ public class Statistics
 
       for (Meeting meeting : meetings)
       {
-        uniqueMeetings.put(hostname + "," + meeting.getMeetingID(), meeting.
-          getMeetingName());
-
+        uniqueMeetings.put( meeting.getMeetingID(), meeting.getMeetingName().toLowerCase().trim());
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
@@ -61,7 +60,7 @@ public class Statistics
         MeetingMetadata metaData = meeting.getMetadata();
         if ( metaData != null && metaData.getOrigin() != null )
         {
-          String o = metaData.getOrigin().toLowerCase().trim();
+          String o = metaData.getOrigin().toLowerCase().trim();          
           if ( o.length() > 0 )
           {
             origin = o;

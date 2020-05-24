@@ -205,6 +205,20 @@ public class TransferTask extends TimerTask
       }
     }
 
+    HashMap<String,String> um = Statistics.getUniqueMeetings();
+    if ( um.isEmpty() )
+    {
+      System.out.println( "\nNo unique meetings present.");
+    }
+    else
+    {
+      System.out.println( "\nUnique meeting ids:");
+      for( String key : um.keySet().toArray(new String[0]))
+      {
+        System.out.println( "  - " + key + " : " + um.get(key));
+      }
+    }
+    
     System.gc();
   }
 }
