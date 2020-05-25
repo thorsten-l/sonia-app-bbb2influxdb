@@ -44,7 +44,7 @@ public class App
 
     String timezone = config.getTimezone();
     
-    if ( ! Strings.isNullOrEmpty(timezone))
+    if ( timezone != null && timezone.trim().length() > 0)
     {
       TimeZone.setDefault(TimeZone.getTimeZone(timezone));
     }
