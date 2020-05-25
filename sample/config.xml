@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
   <configName>all.bbb</configName>
+  <timezone>Europe/Berlin</timezone>
   <interval>60</interval>
   <dbUrl>http://localhost:8086/write?db=bbb</dbUrl>
   <dbUser>influxdb</dbUser>

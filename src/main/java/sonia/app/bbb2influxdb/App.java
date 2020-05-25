@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.util.TimeZone;
 import java.util.Timer;
 import javax.xml.bind.JAXB;
-import jdk.internal.joptsimple.internal.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.app.bbb2influxdb.config.Configuration;
