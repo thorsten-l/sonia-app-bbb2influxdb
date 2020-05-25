@@ -21,6 +21,10 @@ public class Configuration
 {
   @Getter
   @Setter
+  private String timezone;
+  
+  @Getter
+  @Setter
   private String configName;
 
   @Getter
