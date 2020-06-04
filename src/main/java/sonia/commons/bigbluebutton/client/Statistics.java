@@ -1,6 +1,7 @@
 package sonia.commons.bigbluebutton.client;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
@@ -19,24 +20,25 @@ public class Statistics
   final static Logger LOGGER = LoggerFactory.getLogger(Statistics.class.
     getName());
 
-  private static final HashMap<String, String> uniqueUsers = new HashMap();
+  private static final HashSet<String> uniqueUsers = new HashSet();
+  private static final HashSet<String> uniqueUsersInMeetings = new HashSet();
 
-  private static final HashMap<String, HashMap<String, String>> uniqueUsersPerHost = new HashMap();
+  private static final HashMap<String, HashSet<String>> uniqueUsersPerHost = new HashMap();
 
   @Getter
-  private static final HashMap<String, String> uniqueMeetings = new HashMap();
+  private static final HashMap<String,String> uniqueMeetings = new HashMap();
   
   @Getter
   private static final HashMap<String, Long> allUsersPerOrigin = new HashMap();
 
   Statistics(List<Meeting> meetings, String hostname)
   {
-    HashMap<String, String> uniqueUsersForHost = uniqueUsersPerHost.
+    HashSet<String> uniqueUsersForHost = uniqueUsersPerHost.
       get(hostname);
  
     if (uniqueUsersForHost == null)
     {
-      uniqueUsersForHost = new HashMap<String, String>();
+      uniqueUsersForHost = new HashSet<String>();
       uniqueUsersPerHost.put(hostname, uniqueUsersForHost);
     }
 
@@ -50,7 +52,7 @@ public class Statistics
 
       for (Meeting meeting : meetings)
       {
-        uniqueMeetings.put( meeting.getMeetingID(), meeting.getMeetingName().toLowerCase().trim());
+        uniqueMeetings.put(meeting.getMeetingID(), meeting.getMeetingName());
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
@@ -103,10 +105,11 @@ public class Statistics
             numberOfViewerOnlyStreams += 1;
           }
 
-          uniqueUsers.put(attendee.getFullName().toLowerCase(), attendee.
-            getClientType());
-          uniqueUsersForHost.put(attendee.getFullName().toLowerCase(), attendee.
-            getClientType());
+          String attendeeFullname = attendee.getFullName().toLowerCase().trim();
+          
+          uniqueUsers.add(attendeeFullname);
+          uniqueUsersForHost.add(attendeeFullname);
+          uniqueUsersInMeetings.add( meeting.getMeetingID() + "/" + attendeeFullname );
         }
       }
     }
@@ -121,11 +124,16 @@ public class Statistics
     return uniqueUsers.size();
   }
 
+  public static int getNumberOfUniqueUsersInMeetings()
+  {
+    return uniqueUsersInMeetings.size();
+  }
+
   public static int getNumberOfUniqueUsers(String hostname)
   {
     int numberOfUniqueUsers = 0;
 
-    HashMap<String, String> uniqueUsersForHost = uniqueUsersPerHost.
+    HashSet<String> uniqueUsersForHost = uniqueUsersPerHost.
       get(hostname);
 
     if (uniqueUsersForHost != null)
@@ -146,6 +154,7 @@ public class Statistics
     uniqueUsers.clear();
     uniqueMeetings.clear();
     allUsersPerOrigin.clear();
+    uniqueUsersInMeetings.clear();
   }
 
   public static void clearOrigins()

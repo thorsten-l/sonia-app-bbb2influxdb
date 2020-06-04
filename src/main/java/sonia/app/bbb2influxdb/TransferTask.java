@@ -133,7 +133,7 @@ public class TransferTask extends TimerTask
 
       message += "uniqueUsers,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsers() + "\n";
       message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueMeetings() + "\n";
-
+      message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsersInMeetings() + "\n";
         
       HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
 
@@ -205,6 +205,7 @@ public class TransferTask extends TimerTask
       }
     }
 
+    /* DEBUG Code 
     HashMap<String,String> um = Statistics.getUniqueMeetings();
     if ( um.isEmpty() )
     {
@@ -218,6 +219,7 @@ public class TransferTask extends TimerTask
         System.out.println( "  - " + key + " : " + um.get(key));
       }
     }
+    */
     
     System.gc();
   }
