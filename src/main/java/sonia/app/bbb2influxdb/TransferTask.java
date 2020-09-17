@@ -21,7 +21,7 @@ import sonia.commons.bigbluebutton.client.Statistics;
 
 /**
  *
- * @author th
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
  */
 public class TransferTask extends TimerTask
 {

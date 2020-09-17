@@ -10,7 +10,7 @@ import sonia.app.bbb2influxdb.config.Configuration;
 
 /**
  *
- * @author Thosten Ludewig <t.ludewig@ostfalia.de>
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>Thosten Ludewig <t.ludewig@ostfalia.de>
  */
 public class App
 {

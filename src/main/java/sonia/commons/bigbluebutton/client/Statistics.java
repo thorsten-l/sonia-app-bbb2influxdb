@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author th
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
  */
 @XmlRootElement
 @ToString
@@ -52,7 +52,7 @@ public class Statistics
 
       for (Meeting meeting : meetings)
       {
-        uniqueMeetings.put(meeting.getMeetingID(), meeting.getMeetingName());
+        uniqueMeetings.put(meeting.getInternalMeetingID(), meeting.getMeetingName());
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
@@ -105,11 +105,11 @@ public class Statistics
             numberOfViewerOnlyStreams += 1;
           }
 
-          String attendeeFullname = attendee.getFullName().toLowerCase().trim();
+          // String attendeeFullname = attendee.getFullName().toLowerCase().trim();
           
-          uniqueUsers.add(attendeeFullname);
-          uniqueUsersForHost.add(attendeeFullname);
-          uniqueUsersInMeetings.add( meeting.getMeetingID() + "/" + attendeeFullname );
+          uniqueUsers.add(attendee.getUserID());
+          uniqueUsersForHost.add(attendee.getUserID());
+          uniqueUsersInMeetings.add( meeting.getInternalMeetingID() + "/" + attendee.getUserID() );
         }
       }
     }

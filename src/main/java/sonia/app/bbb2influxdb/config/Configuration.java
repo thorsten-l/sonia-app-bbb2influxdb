@@ -13,7 +13,7 @@ import lombok.Setter;
 
 /**
  *
- * @author your name
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>your name
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

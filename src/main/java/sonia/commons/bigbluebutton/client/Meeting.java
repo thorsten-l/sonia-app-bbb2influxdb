@@ -10,7 +10,7 @@ import lombok.ToString;
 
 /**
  *
- * @author Thosten Ludewig <t.ludewig@ostfalia.de>
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>Thosten Ludewig <t.ludewig@ostfalia.de>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @ToString

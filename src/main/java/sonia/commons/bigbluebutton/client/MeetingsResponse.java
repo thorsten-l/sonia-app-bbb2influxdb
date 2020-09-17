@@ -9,7 +9,7 @@ import lombok.ToString;
 
 /**
  *
- * @author Thosten Ludewig <t.ludewig@ostfalia.de>
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>Thosten Ludewig <t.ludewig@ostfalia.de>
  */
 @XmlRootElement( name = "response" )
 @ToString

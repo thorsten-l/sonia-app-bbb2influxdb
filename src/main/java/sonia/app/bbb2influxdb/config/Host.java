@@ -11,7 +11,7 @@ import lombok.Setter;
 
 /**
  *
- * @author th
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
  */
 public class Host
 {
