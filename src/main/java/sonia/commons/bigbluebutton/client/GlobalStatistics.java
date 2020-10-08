@@ -157,7 +157,7 @@ public class GlobalStatistics
 
       long d = (meeting.getEndTime() - meeting.getStartTime()) / 60000;
 
-      System.out.println(meeting.getMeetingName() + " -> " + d);
+      // System.out.println(meeting.getMeetingName() + " -> " + d);
 
       if (d >= 5) // Ignor meetings with duration less than 5min
       {

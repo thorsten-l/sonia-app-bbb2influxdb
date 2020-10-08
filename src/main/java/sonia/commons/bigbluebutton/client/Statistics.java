@@ -36,7 +36,7 @@ public class Statistics
       {
         GlobalStatistics.storeUniqueMeeting(meeting);
         
-        System.out.println( hostname + ":" + meeting );
+        // System.out.println( hostname + ":" + meeting );
         
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
