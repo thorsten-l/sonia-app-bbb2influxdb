@@ -173,6 +173,29 @@ public class Statistics
 
     return duration;
   }
+
+  public static long getAverageClosedMeetingsDuration()
+  {
+    long duration = 0;
+    long counter = 0;
+
+    String[] keys = uniqueMeetings.keySet().toArray(new String[0]);
+
+    for (String key : keys)
+    {
+      Meeting meeting = uniqueMeetings.get(key);
+      
+      long d = (meeting.getEndTime() - meeting.getStartTime());
+      
+      if ( d > 300000 ) // Ignor meetings with duration < 5min
+      {
+        duration += d;
+        counter++;
+      }
+    }
+
+    return duration / counter;
+  }
   
   public static int getClosedMeetingsCounter()
   {

@@ -143,7 +143,7 @@ public class TransferTask extends TimerTask
       
       message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + closedMeetingsDuration + "\n";
       message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + closedMeetingsCounter + "\n";
-      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + ( closedMeetingsDuration / (long)closedMeetingsCounter)+ "\n";
+      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + Statistics.getAverageClosedMeetingsDuration() + "\n";
         
       HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
 
