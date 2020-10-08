@@ -137,14 +137,12 @@ public class TransferTask extends TimerTask
       message += "uniqueUsers,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsers() + "\n";
       message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueMeetings() + "\n";
       message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsersInMeetings() + "\n";
-      
-      long closedMeetingsDuration = Statistics.getClosedMeetingsDuration();
-      int closedMeetingsCounter = Statistics.getClosedMeetingsCounter();
-      
-      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + closedMeetingsDuration + "\n";
-      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + closedMeetingsCounter + "\n";
+            
+      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + Statistics.getClosedMeetingsDuration() + "\n";
+      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + Statistics.getClosedMeetingsCounter() + "\n";
       message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + Statistics.getAverageClosedMeetingsDuration() + "\n";
-        
+      message += "remainingMeetingsCounter,host=" + config.getConfigName() + " value=" + Statistics.getRemainingMeetingsCounter() + "\n";
+  
       HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
 
       if ( !usersPerOrigin.isEmpty() )

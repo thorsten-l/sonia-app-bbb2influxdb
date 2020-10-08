@@ -34,6 +34,9 @@ public class Statistics
 
   @Getter
   private static final HashMap<String, Meeting> uniqueMeetings = new HashMap();
+  
+  @Getter
+  private static final HashMap<String, Meeting> remainingMeetings = new HashMap();
 
   @Getter
   private static final HashMap<String, Long> allUsersPerOrigin = new HashMap();
@@ -52,7 +55,10 @@ public class Statistics
     usersPerOrigin.put("unknown", 0l);
     usersPerOrigin.put("moodle", 0l);
     usersPerOrigin.put("greenlight", 0l);
-
+    
+    remainingMeetings.clear();
+    remainingMeetings.putAll(uniqueMeetings);
+    
     if (meetings != null)
     {
       numberOfMeetings = meetings.size();
@@ -60,6 +66,8 @@ public class Statistics
       for (Meeting meeting : meetings)
       {
         uniqueMeetings.put(meeting.getInternalMeetingID(), meeting);
+        remainingMeetings.remove(meeting.getInternalMeetingID());
+        
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
@@ -171,7 +179,7 @@ public class Statistics
       }
     }
 
-    return duration;
+    return duration / 60000;
   }
 
   public static long getAverageClosedMeetingsDuration()
@@ -185,9 +193,9 @@ public class Statistics
     {
       Meeting meeting = uniqueMeetings.get(key);
       
-      long d = (meeting.getEndTime() - meeting.getStartTime());
-      
-      if ( d > 300000 ) // Ignor meetings with duration < 5min
+      long d = (meeting.getEndTime() - meeting.getStartTime()) / 60000;
+
+      if ( d >= 5 ) // Ignor meetings with duration less than 5min
       {
         duration += d;
         counter++;
@@ -213,6 +221,22 @@ public class Statistics
     }
 
     return counter;
+  }
+  
+  public static int getRemainingMeetingsCounter()
+  {
+    String[] keys = uniqueMeetings.keySet().toArray(new String[0]);
+
+    for (String key : keys)
+    {
+      Meeting meeting = uniqueMeetings.get(key);
+      if ( meeting.getEndTime() > 0 )
+      {
+        remainingMeetings.remove(key);
+      }
+    }
+
+    return remainingMeetings.size();
   }
 
   public static void clear(String currentDate)
