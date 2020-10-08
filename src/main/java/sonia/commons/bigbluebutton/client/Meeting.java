@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -56,6 +57,7 @@ public class Meeting
   private String moderatorPW;
 
   @Getter
+  @Setter
   private boolean running;
 
   @Getter
@@ -72,6 +74,7 @@ public class Meeting
   private long startTime;
 
   @Getter
+  @Setter
   private long endTime;
 
   @Getter

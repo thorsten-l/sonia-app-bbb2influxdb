@@ -17,7 +17,7 @@ import sonia.app.bbb2influxdb.config.Configuration;
 import sonia.app.bbb2influxdb.config.Host;
 import sonia.commons.bigbluebutton.client.BbbClient;
 import sonia.commons.bigbluebutton.client.BbbClientFactory;
-import sonia.commons.bigbluebutton.client.Meeting;
+import sonia.commons.bigbluebutton.client.GlobalStatistics;
 import sonia.commons.bigbluebutton.client.Statistics;
 
 /**
@@ -56,7 +56,7 @@ public class TransferTask extends TimerTask
     if (!currentDate.equalsIgnoreCase(now))
     {
       System.out.println("*** new day - clearing users hashset");
-      Statistics.clear(currentDate);
+      GlobalStatistics.clear(currentDate);
       currentDate = new String(now);
     }
 
@@ -69,9 +69,7 @@ public class TransferTask extends TimerTask
     int numberOfListenOnlyStreams = 0;
     int numberOfViewerOnlyStreams = 0;
     
-    long meetingDuration = 0;
-
-    Statistics.clearOrigins();
+    GlobalStatistics.clearOrigins();
     
     for (Host host : config.getHosts())
     {
@@ -99,7 +97,7 @@ public class TransferTask extends TimerTask
         message += "listenOnly,host=" + hostname + " value=" + statistics.getNumberOfListenOnlyStreams() + "\n";
         message += "viewerOnly,host=" + hostname + " value=" + statistics.getNumberOfViewerOnlyStreams() + "\n";
         message += "largestConference,host=" + hostname + " value=" + statistics.getLargestConference() + "\n";
-        message += "uniqueUsers,host=" + hostname + " value=" + Statistics.getNumberOfUniqueUsers(hostname) + "\n";
+        message += "uniqueUsers,host=" + hostname + " value=" + GlobalStatistics.getNumberOfUniqueUsers(hostname) + "\n";
                 
         HashMap<String, Long> usersPerOrigin = statistics.getUsersPerOrigin();
         
@@ -123,9 +121,11 @@ public class TransferTask extends TimerTask
     }
 
     System.out.println();
-
+    
     if (message.length() > 0)
     {
+      GlobalStatistics.computeMeetingStatistics();
+
       message += "meetings,host=" + config.getConfigName() + " value=" + numberOfMeetings + "\n";
       message += "users,host=" + config.getConfigName() + " value=" + numberOfUsers + "\n";
       message += "audio,host=" + config.getConfigName() + " value=" + numberOfAudioStreams + "\n";
@@ -133,17 +133,16 @@ public class TransferTask extends TimerTask
       message += "listenOnly,host=" + config.getConfigName() + " value=" + numberOfListenOnlyStreams + "\n";
       message += "viewerOnly,host=" + config.getConfigName() + " value=" + numberOfViewerOnlyStreams + "\n";
       message += "largestConference,host=" + config.getConfigName() + " value=" + largestConference + "\n";
-
-      message += "uniqueUsers,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsers() + "\n";
-      message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueMeetings() + "\n";
-      message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsersInMeetings() + "\n";
-            
-      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + Statistics.getClosedMeetingsDuration() + "\n";
-      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + Statistics.getClosedMeetingsCounter() + "\n";
-      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + Statistics.getAverageClosedMeetingsDuration() + "\n";
-      message += "remainingMeetingsCounter,host=" + config.getConfigName() + " value=" + Statistics.getRemainingMeetingsCounter() + "\n";
+      
+      message += "uniqueUsers,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueUsers() + "\n";
+      message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueMeetings() + "\n";
+      message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueUsersInMeetings() + "\n";
+      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + GlobalStatistics.getClosedMeetingsDuration() + "\n";
+      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + GlobalStatistics.getClosedMeetingsCounter() + "\n";
+      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + GlobalStatistics.getAverageClosedMeetingsDuration() + "\n";
+      message += "runningMeetingsCounter,host=" + config.getConfigName() + " value=" + GlobalStatistics.getRunningMeetingsCounter() + "\n";
   
-      HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
+      HashMap<String, Long> usersPerOrigin = GlobalStatistics.getAllUsersPerOrigin();
 
       if ( !usersPerOrigin.isEmpty() )
       {

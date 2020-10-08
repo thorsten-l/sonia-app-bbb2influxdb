@@ -1,17 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sonia.app.bbb2influxdb.config;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  *
- * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>
  */
 public class Host
 {
@@ -31,5 +25,5 @@ public class Host
 
   @Getter
   @Setter
-  private String secret;
+  private String secret;  
 }
