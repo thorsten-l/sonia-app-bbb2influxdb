@@ -47,9 +47,11 @@ public class Meeting
   @Getter
   private String dialNumber;
 
+  @ToString.Exclude
   @Getter
   private String attendeePW;
 
+  @ToString.Exclude
   @Getter
   private String moderatorPW;
 
@@ -90,12 +92,14 @@ public class Meeting
   @Getter
   private int moderatorCount;
 
+  @ToString.Exclude
   @XmlElementWrapper(name = "attendees")
   @XmlElement(name = "attendee")
   @Getter
   private List<Attendee> attendees;
 
   @Getter
+  @ToString.Exclude
   private MeetingMetadata metadata;
 
   @XmlElement(name = "isBreakout")

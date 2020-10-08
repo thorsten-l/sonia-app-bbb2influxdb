@@ -1,8 +1,14 @@
 package sonia.commons.bigbluebutton.client;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,13 +27,14 @@ public class Statistics
     getName());
 
   private static final HashSet<String> uniqueUsers = new HashSet();
+
   private static final HashSet<String> uniqueUsersInMeetings = new HashSet();
 
   private static final HashMap<String, HashSet<String>> uniqueUsersPerHost = new HashMap();
 
   @Getter
-  private static final HashMap<String,String> uniqueMeetings = new HashMap();
-  
+  private static final HashMap<String, Meeting> uniqueMeetings = new HashMap();
+
   @Getter
   private static final HashMap<String, Long> allUsersPerOrigin = new HashMap();
 
@@ -35,55 +42,55 @@ public class Statistics
   {
     HashSet<String> uniqueUsersForHost = uniqueUsersPerHost.
       get(hostname);
- 
+
     if (uniqueUsersForHost == null)
     {
       uniqueUsersForHost = new HashSet<String>();
       uniqueUsersPerHost.put(hostname, uniqueUsersForHost);
     }
 
-    usersPerOrigin.put( "unknown", 0l );
-    usersPerOrigin.put( "moodle", 0l );
-    usersPerOrigin.put( "greenlight", 0l );
-    
+    usersPerOrigin.put("unknown", 0l);
+    usersPerOrigin.put("moodle", 0l);
+    usersPerOrigin.put("greenlight", 0l);
+
     if (meetings != null)
     {
       numberOfMeetings = meetings.size();
 
       for (Meeting meeting : meetings)
       {
-        uniqueMeetings.put(meeting.getInternalMeetingID(), meeting.getMeetingName());
+        uniqueMeetings.put(meeting.getInternalMeetingID(), meeting);
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
-        
+
         String origin = "unknown";
-        
+
         MeetingMetadata metaData = meeting.getMetadata();
-        if ( metaData != null && metaData.getOrigin() != null )
+        if (metaData != null && metaData.getOrigin() != null)
         {
-          String o = metaData.getOrigin().toLowerCase().trim();          
-          if ( o.length() > 0 )
+          String o = metaData.getOrigin().toLowerCase().trim();
+          if (o.length() > 0)
           {
             origin = o;
           }
         }
-        
+
         if (!usersPerOrigin.containsKey(origin))
         {
           usersPerOrigin.put(origin, 0l);
         }
-        
+
         long originCounter = usersPerOrigin.get(origin);
-        originCounter+=meeting.getParticipantCount();
+        originCounter += meeting.getParticipantCount();
         usersPerOrigin.put(origin, originCounter);
-        
+
         if (!allUsersPerOrigin.containsKey(origin))
         {
           allUsersPerOrigin.put(origin, 0l);
         }
         originCounter = allUsersPerOrigin.get(origin);
-        originCounter+=meeting.getParticipantCount();
+        originCounter += meeting.getParticipantCount();
         allUsersPerOrigin.put(origin, originCounter);
 
         for (Attendee attendee : meeting.getAttendees())
@@ -106,10 +113,10 @@ public class Statistics
           }
 
           // String attendeeFullname = attendee.getFullName().toLowerCase().trim();
-          
           uniqueUsers.add(attendee.getUserID());
           uniqueUsersForHost.add(attendee.getUserID());
-          uniqueUsersInMeetings.add( meeting.getInternalMeetingID() + "/" + attendee.getUserID() );
+          uniqueUsersInMeetings.add(meeting.getInternalMeetingID() + "/"
+            + attendee.getUserID());
         }
       }
     }
@@ -149,8 +156,67 @@ public class Statistics
     return uniqueMeetings.size();
   }
 
-  public static void clear()
+  public static long getClosedMeetingsDuration()
   {
+    long duration = 0;
+
+    String[] keys = uniqueMeetings.keySet().toArray(new String[0]);
+
+    for (String key : keys)
+    {
+      Meeting meeting = uniqueMeetings.get(key);
+      if ( meeting.getEndTime() > 0 )
+      {
+        duration += (meeting.getEndTime() - meeting.getStartTime());
+      }
+    }
+
+    return duration;
+  }
+  
+  public static int getClosedMeetingsCounter()
+  {
+    int counter = 0;
+
+    String[] keys = uniqueMeetings.keySet().toArray(new String[0]);
+
+    for (String key : keys)
+    {
+      Meeting meeting = uniqueMeetings.get(key);
+      if ( meeting.getEndTime() > 0 )
+      {
+        counter++;
+      }
+    }
+
+    return counter;
+  }
+
+  public static void clear(String currentDate)
+  {
+    try
+    {
+      try (PrintWriter writer = new PrintWriter("unique-meetings-" + currentDate
+        + ".xml"))
+      {
+        String[] keys = uniqueMeetings.keySet().toArray(new String[0]);
+
+        Meeting[] meetings = new Meeting[uniqueMeetings.size()];
+
+        int i = 0;
+        for (String key : keys)
+        {
+          meetings[i++] = uniqueMeetings.get(key);
+        }
+
+        JAXB.marshal(meetings, writer);
+      }
+    }
+    catch (FileNotFoundException ex)
+    {
+      LOGGER.error("Can't write unique meeting logfile. ", ex);
+    }
+
     uniqueUsers.clear();
     uniqueMeetings.clear();
     allUsersPerOrigin.clear();
@@ -160,14 +226,14 @@ public class Statistics
   public static void clearOrigins()
   {
     allUsersPerOrigin.clear();
-    allUsersPerOrigin.put( "unknown", 0l );
-    allUsersPerOrigin.put( "moodle", 0l );
-    allUsersPerOrigin.put( "greenlight", 0l );
+    allUsersPerOrigin.put("unknown", 0l);
+    allUsersPerOrigin.put("moodle", 0l);
+    allUsersPerOrigin.put("greenlight", 0l);
   }
-  
+
   @Getter
   private HashMap<String, Long> usersPerOrigin = new HashMap();
-  
+
   @Getter
   private int numberOfMeetings;
 

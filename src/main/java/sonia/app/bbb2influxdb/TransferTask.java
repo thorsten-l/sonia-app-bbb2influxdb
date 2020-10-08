@@ -17,6 +17,7 @@ import sonia.app.bbb2influxdb.config.Configuration;
 import sonia.app.bbb2influxdb.config.Host;
 import sonia.commons.bigbluebutton.client.BbbClient;
 import sonia.commons.bigbluebutton.client.BbbClientFactory;
+import sonia.commons.bigbluebutton.client.Meeting;
 import sonia.commons.bigbluebutton.client.Statistics;
 
 /**
@@ -29,7 +30,7 @@ public class TransferTask extends TimerTask
     getName());
 
   private final static SimpleDateFormat FORMAT = new SimpleDateFormat(
-    "YYYY-MM-dd");
+    "YYYYMMdd");
 
   private static String currentDate;
 
@@ -55,7 +56,7 @@ public class TransferTask extends TimerTask
     if (!currentDate.equalsIgnoreCase(now))
     {
       System.out.println("*** new day - clearing users hashset");
-      Statistics.clear();
+      Statistics.clear(currentDate);
       currentDate = new String(now);
     }
 
@@ -67,6 +68,8 @@ public class TransferTask extends TimerTask
     int numberOfVideoStreams = 0;
     int numberOfListenOnlyStreams = 0;
     int numberOfViewerOnlyStreams = 0;
+    
+    long meetingDuration = 0;
 
     Statistics.clearOrigins();
     
@@ -134,6 +137,13 @@ public class TransferTask extends TimerTask
       message += "uniqueUsers,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsers() + "\n";
       message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueMeetings() + "\n";
       message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + Statistics.getNumberOfUniqueUsersInMeetings() + "\n";
+      
+      long closedMeetingsDuration = Statistics.getClosedMeetingsDuration();
+      int closedMeetingsCounter = Statistics.getClosedMeetingsCounter();
+      
+      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + closedMeetingsDuration + "\n";
+      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + closedMeetingsCounter + "\n";
+      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + ( closedMeetingsDuration / (long)closedMeetingsCounter)+ "\n";
         
       HashMap<String, Long> usersPerOrigin = Statistics.getAllUsersPerOrigin();
 
@@ -203,10 +213,12 @@ public class TransferTask extends TimerTask
           connection.disconnect();
         }
       }
-    }
-
-    /* DEBUG Code 
-    HashMap<String,String> um = Statistics.getUniqueMeetings();
+    } 
+    
+      
+    /* DEBUG Code */
+    /*int counter = 1;
+    HashMap<String,Meeting> um = Statistics.getUniqueMeetings();
     if ( um.isEmpty() )
     {
       System.out.println( "\nNo unique meetings present.");
@@ -214,12 +226,32 @@ public class TransferTask extends TimerTask
     else
     {
       System.out.println( "\nUnique meeting ids:");
-      for( String key : um.keySet().toArray(new String[0]))
+      
+      String[] keys = um.keySet().toArray(new String[0]);
+      
+      for( String key : keys )
       {
-        System.out.println( "  - " + key + " : " + um.get(key));
-      }
-    }
-    */
+        Meeting m = um.get(key);
+       
+        System.out.println( "  - " + (counter) + ". " + key + " : " + m.toString() );
+        
+        for( String k : keys )
+        {
+          if ( !k.equals(key))
+          {
+            Meeting m2 = um.get(k);
+            
+            if ( m.getMeetingID().equals(m2.getMeetingID()))
+            {
+              System.out.println( "  +++++++ " + (counter) + ". <" + key + "> : " + m.toString() );
+              System.out.println( "  +++++++ " + (counter) + ". <" + k + "> : " + m2.toString() );
+            }
+          }
+        }
+        
+        counter++;
+      } 
+    }*/
     
     System.gc();
   }
