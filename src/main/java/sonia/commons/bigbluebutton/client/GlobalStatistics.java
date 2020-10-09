@@ -141,6 +141,8 @@ public class GlobalStatistics
     {
       Meeting meeting = uniqueMeetings.get(key);
 
+      long d = Math.max((meeting.getEndTime() - meeting.getStartTime()) / 60000l, 0l);
+      
       if (meeting.isRunning())
       {
         runningMeetingsCounter++;
@@ -150,28 +152,35 @@ public class GlobalStatistics
         if (meeting.getEndTime() == 0)
         {
           meeting.setEndTime(System.currentTimeMillis());
+          
+          
+          d = Math.max(( meeting.getEndTime() - meeting.getStartTime()) / 60000l, 0l);
         }
-        closedMeetingsDuration += (meeting.getEndTime() - meeting.getStartTime());
-        closedMeetingsCounter++;
+        
+        if ( d < 1440 )
+        {
+          closedMeetingsDuration += d;
+          closedMeetingsCounter++;
+        }
       }
 
-      long d = (meeting.getEndTime() - meeting.getStartTime()) / 60000;
+      //System.out.println((( meeting.isRunning() ) ? "T" : "F" ) + "  " + d + " : " + meeting.getMeetingName());
+      //System.out.println( "   " + d + " : " + meeting.getEndTime() + " " + meeting.getStartTime());
 
-      // System.out.println(meeting.getMeetingName() + " -> " + d);
-
-      if (d >= 5) // Ignor meetings with duration less than 5min
+      if (d >= 5l && d < 1440l ) // Ignor meetings with duration less than 5min
       {
         avgDuration += d;
         avgCounter++;
+        //System.out.println( "   AVG " + d + " : " + avgCounter + " " + avgDuration );
       }
     }
     
-    closedMeetingsDuration /= 60000;
-
     if (avgCounter > 0)
     {
-      averageClosedMeetingsDuration = avgDuration / avgCounter / 60000;
+      averageClosedMeetingsDuration = avgDuration / avgCounter;
     }
+    
+    System.out.println();
   }
 
   public static void clear(String currentDate)
