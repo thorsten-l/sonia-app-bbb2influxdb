@@ -157,7 +157,7 @@ public class TransferTask extends TimerTask
         message += "\n";
       }
       
-      System.out.println(message);
+      // System.out.println(message);
 
       HttpURLConnection connection = null;
 
