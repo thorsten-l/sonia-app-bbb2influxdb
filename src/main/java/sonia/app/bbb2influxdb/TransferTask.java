@@ -6,8 +6,6 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.TimerTask;
 import org.apache.commons.codec.binary.Base64;
@@ -29,19 +27,8 @@ public class TransferTask extends TimerTask
   final static Logger LOGGER = LoggerFactory.getLogger(TransferTask.class.
     getName());
 
-  private final static SimpleDateFormat FORMAT = new SimpleDateFormat(
-    "YYYYMMdd");
-
-  private static String currentDate;
-
   private Configuration config;
-
-  static
-  {
-    currentDate = FORMAT.format(new Date());
-    System.out.println(currentDate);
-  }
-
+  
   public TransferTask(Configuration config)
   {
     this.config = config;
@@ -50,16 +37,8 @@ public class TransferTask extends TimerTask
   @Override
   public void run()
   {
-    System.out.println("\nRunning transfer task (" + new Date() + ")");
-    String now = FORMAT.format(new Date());
-
-    if (!currentDate.equalsIgnoreCase(now))
-    {
-      System.out.println("*** new day - clearing users hashset");
-      GlobalStatistics.clear(currentDate);
-      currentDate = new String(now);
-    }
-
+    LOGGER.info("Running transfer task.");
+    
     String message = "";
     int numberOfMeetings = 0;
     int largestConference = 0;
@@ -74,7 +53,7 @@ public class TransferTask extends TimerTask
     for (Host host : config.getHosts())
     {
       String hostname = host.getHostname();
-      System.out.println("Getting statistics for host = " + hostname);
+      LOGGER.info("Getting statistics for host = {}", hostname);
       try
       {
         BbbClient client = BbbClientFactory.createClient(host.getApiUrl(), host.
@@ -119,8 +98,6 @@ public class TransferTask extends TimerTask
         LOGGER.error("Reading statistics for host=" + host.getHostname(), e);
       }
     }
-
-    System.out.println();
     
     if (message.length() > 0)
     {
@@ -157,8 +134,6 @@ public class TransferTask extends TimerTask
         message += "\n";
       }
       
-      // System.out.println(message);
-
       HttpURLConnection connection = null;
 
       try
@@ -194,8 +169,8 @@ public class TransferTask extends TimerTask
           }
         }
 
-        System.out.println(content.toString());
-        System.out.println("response code : " + connection.getResponseCode());
+        LOGGER.debug("response content : <{}>", content.toString());
+        LOGGER.info("response code : {}", connection.getResponseCode());
 
       }
       catch (Exception e)
@@ -206,49 +181,11 @@ public class TransferTask extends TimerTask
       {
         if (connection != null)
         {
-          System.out.println("--- disconnect ---");
+          LOGGER.debug("--- connection disconnect ---");
           connection.disconnect();
         }
       }
     } 
-    
-      
-    /* DEBUG Code */
-    /*int counter = 1;
-    HashMap<String,Meeting> um = Statistics.getUniqueMeetings();
-    if ( um.isEmpty() )
-    {
-      System.out.println( "\nNo unique meetings present.");
-    }
-    else
-    {
-      System.out.println( "\nUnique meeting ids:");
-      
-      String[] keys = um.keySet().toArray(new String[0]);
-      
-      for( String key : keys )
-      {
-        Meeting m = um.get(key);
-       
-        System.out.println( "  - " + (counter) + ". " + key + " : " + m.toString() );
-        
-        for( String k : keys )
-        {
-          if ( !k.equals(key))
-          {
-            Meeting m2 = um.get(k);
-            
-            if ( m.getMeetingID().equals(m2.getMeetingID()))
-            {
-              System.out.println( "  +++++++ " + (counter) + ". <" + key + "> : " + m.toString() );
-              System.out.println( "  +++++++ " + (counter) + ". <" + k + "> : " + m2.toString() );
-            }
-          }
-        }
-        
-        counter++;
-      } 
-    }*/
     
     System.gc();
   }

@@ -3,8 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>sonia.app</groupId>
   <artifactId>sonia-app-bbb2influxdb</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
+
+  <properties>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+    <build.timestamp>${maven.build.timestamp}</build.timestamp>
+    <logback.xml>logback.xml</logback.xml>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
 
   <scm>
     <connection>scm:git:https://scm.ostfalia.de/scm/git/commons/sonia-app-bbb2influxdb</connection>
@@ -19,14 +28,12 @@
   </ciManagement>
   
   <developers>
-
     <developer>
       <id>th</id>
       <name>Thorsten Ludewig</name>
       <email>t.ludewig@ostfalia.de</email>
       <timezone>Europe/Berlin</timezone>
     </developer>
-    
   </developers>
   
   <dependencies>
@@ -69,6 +76,11 @@
       <groupId>org.glassfish.jersey.inject</groupId>
       <artifactId>jersey-hk2</artifactId>
       <version>2.27</version>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>2.3.2</version>
     </dependency>
     
     <!-- manifest -->
@@ -123,7 +135,18 @@
   
   <build>
     <finalName>bbb2influxdb</finalName>
-    
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/config</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
@@ -133,6 +156,25 @@
     </extensions>
     
     <plugins>
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>copy-file</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <sourceFile>src/main/logback/${logback.xml}</sourceFile>
+              <destinationFile>target/classes/logback.xml</destinationFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+                      
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -172,9 +214,13 @@
     </plugins>
   </build>
   
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
+  <profiles>
+    <profile>
+      <id>development</id>
+      <properties>
+        <logback.xml>logback.devel.xml</logback.xml>
+      </properties>
+    </profile>
+  </profiles>
+  
 </project>

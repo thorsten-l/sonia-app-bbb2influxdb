@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
@@ -16,8 +17,17 @@ import lombok.Setter;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@ToString
 public class Configuration
 {
+  @Getter
+  @Setter
+  private boolean clearStatisticsEnabled;
+  
+  @Getter
+  @Setter
+  private String clearStatisticsCron;
+  
   @Getter
   @Setter
   private String timezone;
