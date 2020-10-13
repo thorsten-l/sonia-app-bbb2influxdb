@@ -206,6 +206,7 @@ public class GlobalStatistics
     uniqueMeetings.clear();
     allUsersPerOrigin.clear();
     uniqueUsersInMeetings.clear();
+    averageClosedMeetingsDuration = 0;
   }
 
   public static void clearOrigins()
