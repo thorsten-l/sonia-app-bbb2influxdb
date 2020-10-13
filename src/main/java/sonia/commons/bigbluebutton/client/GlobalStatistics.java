@@ -1,10 +1,14 @@
 package sonia.commons.bigbluebutton.client;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,80 +20,87 @@ import org.slf4j.LoggerFactory;
  * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
  */
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 @ToString
-public class GlobalStatistics
+public class GlobalStatistics implements Serializable
 {
+  private static final long serialVersionUID = 38315001L;
+  
   final static Logger LOGGER = LoggerFactory.getLogger(GlobalStatistics.class.
     getName());
 
-  private static final HashSet<String> uniqueUsers = new HashSet();
+  private static GlobalStatistics GS = new GlobalStatistics();
 
-  private static final HashSet<String> uniqueUsersInMeetings = new HashSet();
+  private GlobalStatistics()
+  {
+  }
 
-  private static final HashMap<String, HashSet<String>> uniqueUsersPerHost = new HashMap();
-
-  private static final HashMap<String, Meeting> uniqueMeetings = new HashMap();
-
-  private static final HashMap<String, Meeting> currentMeetings = new HashMap();
-
-  @Getter
-  private static final HashMap<String, Long> allUsersPerOrigin = new HashMap();
+  public static GlobalStatistics getInstance()
+  {
+    return GS;
+  }
+  
+  public static void readSavedState( File saveFile )
+  {
+    GS = JAXB.unmarshal( saveFile, GlobalStatistics.class );
+    LOGGER.info( "read saved state done.");
+  }
 
   public static void initializePerHost(String hostname)
   {
-    HashSet<String> uniqueUsersForHost = uniqueUsersPerHost.
+    HashSet<String> uniqueUsersForHost = GS.uniqueUsersPerHost.
       get(hostname);
 
     if (uniqueUsersForHost == null)
     {
       uniqueUsersForHost = new HashSet<String>();
-      uniqueUsersPerHost.put(hostname, uniqueUsersForHost);
+      GS.uniqueUsersPerHost.put(hostname, uniqueUsersForHost);
     }
   }
 
   public static void storeUniqueMeeting(Meeting meeting)
   {
-    uniqueMeetings.put(meeting.getInternalMeetingID(), meeting);
-    currentMeetings.put(meeting.getInternalMeetingID(), meeting);
+    GS.uniqueMeetings.put(meeting.getInternalMeetingID(), meeting);
+    GS.currentMeetings.put(meeting.getInternalMeetingID(), meeting);
   }
 
   public static void addAllUsersPerOrigin(String origin, Meeting meeting)
   {
-    if (!allUsersPerOrigin.containsKey(origin))
+    if (!GS.allUsersPerOrigin.containsKey(origin))
     {
-      allUsersPerOrigin.put(origin, 0l);
+      GS.allUsersPerOrigin.put(origin, 0l);
     }
-    long originCounter = allUsersPerOrigin.get(origin);
+    long originCounter = GS.allUsersPerOrigin.get(origin);
     originCounter += meeting.getParticipantCount();
-    allUsersPerOrigin.put(origin, originCounter);
+    GS.allUsersPerOrigin.put(origin, originCounter);
   }
 
   public static void addAttendee(Attendee attendee, Meeting meeting,
     String hostname)
   {
-    uniqueUsers.add(attendee.getUserID());
-    HashSet<String> uniqueUsersForHost = uniqueUsersPerHost.
+    GS.uniqueUsers.add(attendee.getUserID());
+    HashSet<String> uniqueUsersForHost = GS.uniqueUsersPerHost.
       get(hostname);
     uniqueUsersForHost.add(attendee.getUserID());
-    uniqueUsersInMeetings.add(meeting.getInternalMeetingID() + "/"
+    GS.uniqueUsersInMeetings.add(meeting.getInternalMeetingID() + "/"
       + attendee.getUserID());
   }
 
   public static int getNumberOfUniqueUsers()
   {
-    return uniqueUsers.size();
+    return GS.uniqueUsers.size();
   }
 
   public static int getNumberOfUniqueUsersInMeetings()
   {
-    return uniqueUsersInMeetings.size();
+    return GS.uniqueUsersInMeetings.size();
   }
 
   public static int getNumberOfUniqueUsers(String hostname)
   {
     int numberOfUniqueUsers = 0;
 
-    HashSet<String> uniqueUsersForHost = uniqueUsersPerHost.
+    HashSet<String> uniqueUsersForHost = GS.uniqueUsersPerHost.
       get(hostname);
 
     if (uniqueUsersForHost != null)
@@ -102,15 +113,15 @@ public class GlobalStatistics
 
   public static int getNumberOfUniqueMeetings()
   {
-    return uniqueMeetings.size();
+    return GS.uniqueMeetings.size();
   }
 
   public static void computeMeetingStatistics()
   {
     HashMap<String, Meeting> meetingsMap = new HashMap();
-    meetingsMap.putAll(uniqueMeetings);
+    meetingsMap.putAll(GS.uniqueMeetings);
 
-    String[] keys = currentMeetings.keySet().toArray(new String[0]);
+    String[] keys = GS.currentMeetings.keySet().toArray(new String[0]);
 
     for (String key : keys)
     {
@@ -121,7 +132,7 @@ public class GlobalStatistics
 
     for (String key : keys)
     {
-      Meeting meeting = uniqueMeetings.get(key);
+      Meeting meeting = GS.uniqueMeetings.get(key);
       if (meeting.isRunning())
       {
         meeting.setRunning(false);
@@ -129,24 +140,24 @@ public class GlobalStatistics
       }
     }
 
-    closedMeetingsDuration = 0;
-    closedMeetingsCounter = 0;
-    runningMeetingsCounter = 0;
+    GS.closedMeetingsDuration = 0;
+    GS.closedMeetingsCounter = 0;
+    GS.runningMeetingsCounter = 0;
     long avgDuration = 0;
     long avgCounter = 0;
 
-    keys = uniqueMeetings.keySet().toArray(new String[0]);
+    keys = GS.uniqueMeetings.keySet().toArray(new String[0]);
 
     for (String key : keys)
     {
-      Meeting meeting = uniqueMeetings.get(key);
+      Meeting meeting = GS.uniqueMeetings.get(key);
 
       long d = Math.
         max((meeting.getEndTime() - meeting.getStartTime()) / 60000l, 0l);
 
       if (meeting.isRunning())
       {
-        runningMeetingsCounter++;
+        GS.runningMeetingsCounter++;
       }
       else
       {
@@ -159,8 +170,8 @@ public class GlobalStatistics
 
         if (d < 1440)
         {
-          closedMeetingsDuration += d;
-          closedMeetingsCounter++;
+          GS.closedMeetingsDuration += d;
+          GS.closedMeetingsCounter++;
         }
       }
 
@@ -173,7 +184,7 @@ public class GlobalStatistics
 
     if (avgCounter > 0)
     {
-      averageClosedMeetingsDuration = avgDuration / avgCounter;
+      GS.averageClosedMeetingsDuration = avgDuration / avgCounter;
     }
   }
 
@@ -184,14 +195,14 @@ public class GlobalStatistics
       try (PrintWriter writer = new PrintWriter("unique-meetings-" + currentDate
         + ".xml"))
       {
-        String[] keys = uniqueMeetings.keySet().toArray(new String[0]);
+        String[] keys = GS.uniqueMeetings.keySet().toArray(new String[0]);
 
-        Meeting[] meetings = new Meeting[uniqueMeetings.size()];
+        Meeting[] meetings = new Meeting[GS.uniqueMeetings.size()];
 
         int i = 0;
         for (String key : keys)
         {
-          meetings[i++] = uniqueMeetings.get(key);
+          meetings[i++] = GS.uniqueMeetings.get(key);
         }
 
         JAXB.marshal(meetings, writer);
@@ -202,32 +213,44 @@ public class GlobalStatistics
       LOGGER.error("Can't write unique meeting logfile. ", ex);
     }
 
-    uniqueUsers.clear();
-    uniqueMeetings.clear();
-    allUsersPerOrigin.clear();
-    uniqueUsersInMeetings.clear();
-    averageClosedMeetingsDuration = 0;
+    GS.uniqueUsers.clear();
+    GS.uniqueMeetings.clear();
+    GS.allUsersPerOrigin.clear();
+    GS.uniqueUsersInMeetings.clear();
+    GS.averageClosedMeetingsDuration = 0;
   }
 
   public static void clearOrigins()
   {
-    allUsersPerOrigin.clear();
-    allUsersPerOrigin.put("unknown", 0l);
-    allUsersPerOrigin.put("moodle", 0l);
-    allUsersPerOrigin.put("greenlight", 0l);
-    currentMeetings.clear();
+    GS.allUsersPerOrigin.clear();
+    GS.allUsersPerOrigin.put("unknown", 0l);
+    GS.allUsersPerOrigin.put("moodle", 0l);
+    GS.allUsersPerOrigin.put("greenlight", 0l);
+    GS.currentMeetings.clear();
   }
 
-  @Getter
-  private static long closedMeetingsDuration;
+  private HashSet<String> uniqueUsers = new HashSet();
+
+  private HashSet<String> uniqueUsersInMeetings = new HashSet();
+
+  private HashMap<String, HashSet<String>> uniqueUsersPerHost = new HashMap();
+
+  private HashMap<String, Meeting> uniqueMeetings = new HashMap();
+
+  private HashMap<String, Meeting> currentMeetings = new HashMap();
 
   @Getter
-  private static long averageClosedMeetingsDuration;
+  private HashMap<String, Long> allUsersPerOrigin = new HashMap();
 
   @Getter
-  private static int closedMeetingsCounter;
+  private long closedMeetingsDuration;
 
   @Getter
-  private static int runningMeetingsCounter;
+  private long averageClosedMeetingsDuration;
 
+  @Getter
+  private int closedMeetingsCounter;
+
+  @Getter
+  private int runningMeetingsCounter;
 }

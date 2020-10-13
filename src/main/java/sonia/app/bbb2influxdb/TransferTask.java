@@ -111,15 +111,17 @@ public class TransferTask extends TimerTask
       message += "viewerOnly,host=" + config.getConfigName() + " value=" + numberOfViewerOnlyStreams + "\n";
       message += "largestConference,host=" + config.getConfigName() + " value=" + largestConference + "\n";
       
+      GlobalStatistics gs = GlobalStatistics.getInstance();
+      
       message += "uniqueUsers,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueUsers() + "\n";
       message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueMeetings() + "\n";
       message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueUsersInMeetings() + "\n";
-      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + GlobalStatistics.getClosedMeetingsDuration() + "\n";
-      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + GlobalStatistics.getClosedMeetingsCounter() + "\n";
-      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + GlobalStatistics.getAverageClosedMeetingsDuration() + "\n";
-      message += "runningMeetingsCounter,host=" + config.getConfigName() + " value=" + GlobalStatistics.getRunningMeetingsCounter() + "\n";
+      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + gs.getClosedMeetingsDuration() + "\n";
+      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + gs.getClosedMeetingsCounter() + "\n";
+      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + gs.getAverageClosedMeetingsDuration() + "\n";
+      message += "runningMeetingsCounter,host=" + config.getConfigName() + " value=" + gs.getRunningMeetingsCounter() + "\n";
   
-      HashMap<String, Long> usersPerOrigin = GlobalStatistics.getAllUsersPerOrigin();
+      HashMap<String, Long> usersPerOrigin = gs.getAllUsersPerOrigin();
 
       if ( !usersPerOrigin.isEmpty() )
       {

@@ -54,6 +54,10 @@ public class Configuration
   
   @Getter
   @Setter
+  private int consolePort;
+  
+  @Getter
+  @Setter
   @XmlElementWrapper(name="hosts")
   @XmlElement( name = "host" ) 
   List<Host> hosts;

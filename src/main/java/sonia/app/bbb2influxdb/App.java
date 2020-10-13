@@ -1,6 +1,9 @@
 package sonia.app.bbb2influxdb;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.TimeZone;
 import java.util.Timer;
 import javax.xml.bind.JAXB;
@@ -16,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.app.bbb2influxdb.config.Configuration;
 import sonia.app.bbb2influxdb.cronjob.ClearStatisticsJob;
+import sonia.commons.bigbluebutton.client.GlobalStatistics;
 
 /**
  *
@@ -24,32 +28,85 @@ import sonia.app.bbb2influxdb.cronjob.ClearStatisticsJob;
  */
 public class App
 {
-
   private static final String CONFIGURATION = "config.xml";
+
+  private static final String SAVE_STATE = "save.xml";
 
   final static Logger LOGGER = LoggerFactory.getLogger(App.class.
     getName());
 
   private static Configuration config;
 
-  public static void main(String[] args) throws Exception
+  public static void readConfiguration()
   {
+    LOGGER.info( "reading configuration file config.xml 2");
+    
     try
     {
-      config = JAXB.
-        unmarshal(new FileReader(CONFIGURATION), Configuration.class);
-
+      Configuration c = null;
+      File configFile = new File(CONFIGURATION);
+      
+      LOGGER.info( "Config file: {}", configFile.getAbsolutePath());
+      
+      if ( configFile.exists() && configFile.canRead() )
+      {
+        c = JAXB.unmarshal(new FileReader(configFile), Configuration.class);
+        
+        LOGGER.debug( "new config <{}>", c );
+        
+        if ( c != null )
+        {
+          LOGGER.info("setting config");
+          config = c;
+        }
+      }
+      else
+      {
+        LOGGER.info("Can NOT read config file");
+      }
+      
       if (config == null)
       {
-        System.out.println("config file NOT found");
+        LOGGER.error("config file NOT found");
         System.exit(2);
       }
     }
     catch (Exception e)
     {
-      LOGGER.error("Configuratione file config.xml not found");
+      LOGGER.error("Configuratione file config.xml not found ", e );
       System.exit(2);
     }
+  }
+
+  public static void main(String[] args) throws Exception
+  {
+    BuildProperties build = BuildProperties.getInstance();
+    LOGGER.info("Project Name    : " + build.getProjectName());
+    LOGGER.info("Project Version : " + build.getProjectVersion());
+    LOGGER.info("Build Timestamp : " + build.getTimestamp());
+
+    Runtime.getRuntime().addShutdownHook(new Thread()
+    {
+      @Override
+      public void run()
+      {
+        LOGGER.info("Shutdown Hook is running !");
+        try
+        {
+          JAXB.marshal(GlobalStatistics.getInstance(),
+            new FileWriter(SAVE_STATE));
+        }
+        catch (IOException ex)
+        {
+          LOGGER.error("Can not write save state");
+        }
+      }
+    });
+
+    readConfiguration();
+    LOGGER.debug(config.toString());
+
+    new Console(config.getConsolePort()).start();
     
     String timezone = config.getTimezone();
 
@@ -58,18 +115,12 @@ public class App
       TimeZone.setDefault(TimeZone.getTimeZone(timezone));
     }
 
-    TransferTask task = new TransferTask(config);
-    Timer timer = new Timer();
-    System.out.println("Running task every " + config.getInterval()
-      + " seconds.");
-    timer.scheduleAtFixedRate(task, 0, config.getInterval() * 1000);
-
-    BuildProperties build = BuildProperties.getInstance();
-    LOGGER.info("Project Name    : " + build.getProjectName());
-    LOGGER.info("Project Version : " + build.getProjectVersion());
-    LOGGER.info("Build Timestamp : " + build.getTimestamp());
-    
-    LOGGER.debug(config.toString());
+    File saveFile = new File(SAVE_STATE);
+    if (saveFile.exists() && saveFile.canRead())
+    {
+      LOGGER.info("Reading global statistics from save.xml.");
+      GlobalStatistics.readSavedState(saveFile);
+    }
 
     SchedulerFactory schedulerFactory = new StdSchedulerFactory();
     Scheduler scheduler = schedulerFactory.getScheduler();
@@ -78,7 +129,7 @@ public class App
     if (config.isClearStatisticsEnabled())
     {
       LOGGER.debug("Setting up clear statistics cron job.");
-      
+
       JobDetail job = JobBuilder.newJob(ClearStatisticsJob.class)
         .withIdentity("ClearStatisticsJob", "group1")
         .build();
@@ -90,5 +141,11 @@ public class App
         .build();
       scheduler.scheduleJob(job, trigger);
     }
+    
+    TransferTask task = new TransferTask(config);
+    Timer timer = new Timer();
+    System.out.println("Running task every " + config.getInterval()
+      + " seconds.");
+    timer.scheduleAtFixedRate(task, 0, config.getInterval() * 1000);
   }
 }

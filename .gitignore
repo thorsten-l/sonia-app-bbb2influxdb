@@ -3,4 +3,7 @@ nbactions.xml
 nb-configuration.xml
 target/
 private/
+logs/
 config.xml
+save.xml
+rebel.xml
