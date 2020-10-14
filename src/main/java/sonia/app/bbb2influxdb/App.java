@@ -38,7 +38,7 @@ public class App
 
   private static Configuration config;
 
-  public static void buildInfo( PrintStream out )
+  public static void buildInfo(PrintStream out)
   {
     BuildProperties build = BuildProperties.getInstance();
     out.println("Project Name    : " + build.getProjectName());
@@ -46,25 +46,25 @@ public class App
     out.println("Build Timestamp : " + build.getTimestamp());
     out.flush();
   }
-  
+
   public static void readConfiguration()
   {
-    LOGGER.info( "reading configuration file config.xml 2");
-    
+    LOGGER.info("reading configuration file config.xml 2");
+
     try
     {
       Configuration c = null;
       File configFile = new File(CONFIGURATION);
-      
-      LOGGER.info( "Config file: {}", configFile.getAbsolutePath());
-      
-      if ( configFile.exists() && configFile.canRead() )
+
+      LOGGER.info("Config file: {}", configFile.getAbsolutePath());
+
+      if (configFile.exists() && configFile.canRead())
       {
         c = JAXB.unmarshal(new FileReader(configFile), Configuration.class);
-        
-        LOGGER.debug( "new config <{}>", c );
-        
-        if ( c != null )
+
+        LOGGER.debug("new config <{}>", c);
+
+        if (c != null)
         {
           LOGGER.info("setting config");
           config = c;
@@ -74,7 +74,7 @@ public class App
       {
         LOGGER.info("Can NOT read config file");
       }
-      
+
       if (config == null)
       {
         LOGGER.error("config file NOT found");
@@ -83,8 +83,21 @@ public class App
     }
     catch (Exception e)
     {
-      LOGGER.error("Configuratione file config.xml not found ", e );
+      LOGGER.error("Configuratione file config.xml not found ", e);
       System.exit(2);
+    }
+  }
+
+  public static void saveState()
+  {
+    try
+    {
+      JAXB.marshal(GlobalStatistics.getInstance(),
+        new FileWriter(SAVE_STATE));
+    }
+    catch (IOException ex)
+    {
+      LOGGER.error("Can not write save state");
     }
   }
 
@@ -101,15 +114,7 @@ public class App
       public void run()
       {
         LOGGER.info("Shutdown Hook is running !");
-        try
-        {
-          JAXB.marshal(GlobalStatistics.getInstance(),
-            new FileWriter(SAVE_STATE));
-        }
-        catch (IOException ex)
-        {
-          LOGGER.error("Can not write save state");
-        }
+        saveState();
       }
     });
 
@@ -117,7 +122,7 @@ public class App
     LOGGER.debug(config.toString());
 
     new Console(config.getConsolePort()).start();
-    
+
     String timezone = config.getTimezone();
 
     if (timezone != null && timezone.trim().length() > 0)
@@ -151,7 +156,7 @@ public class App
         .build();
       scheduler.scheduleJob(job, trigger);
     }
-    
+
     TransferTask task = new TransferTask(config);
     Timer timer = new Timer();
     System.out.println("Running task every " + config.getInterval()
