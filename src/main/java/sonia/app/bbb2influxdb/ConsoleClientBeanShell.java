@@ -83,8 +83,9 @@ public class ConsoleClientBeanShell implements Runnable
         }
       };
       
+      out.println();
       App.buildInfo(out);
-      
+      out.println("\nhelp(); : help for additional commands.\n");
       Interpreter interpreter = new Interpreter(reader, out, out, true);
       interpreter.setConsole(console);
       interpreter.setExitOnEOF(false);
