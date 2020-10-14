@@ -64,7 +64,7 @@ public class Console implements Runnable
       while (true)
       {
         Socket client = serverSocket.accept();
-        Thread consoleClient = new Thread(new ConsoleClient(client),
+        Thread consoleClient = new Thread(new ConsoleClientBeanShell(client),
           "ConsoleClient");
         consoleClient.setDaemon(false);
         consoleClient.start();

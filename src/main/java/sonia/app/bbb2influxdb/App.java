@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.TimeZone;
 import java.util.Timer;
 import javax.xml.bind.JAXB;
@@ -37,6 +38,15 @@ public class App
 
   private static Configuration config;
 
+  public static void buildInfo( PrintStream out )
+  {
+    BuildProperties build = BuildProperties.getInstance();
+    out.println("Project Name    : " + build.getProjectName());
+    out.println("Project Version : " + build.getProjectVersion());
+    out.println("Build Timestamp : " + build.getTimestamp());
+    out.flush();
+  }
+  
   public static void readConfiguration()
   {
     LOGGER.info( "reading configuration file config.xml 2");
