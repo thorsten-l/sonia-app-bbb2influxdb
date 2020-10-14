@@ -5,10 +5,7 @@ import bsh.EvalError;
 import bsh.Interpreter;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
-import sonia.commons.bigbluebutton.client.Statistics;
 
 /**
  *
