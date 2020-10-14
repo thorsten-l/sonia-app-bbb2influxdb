@@ -91,11 +91,11 @@ public class ConsoleClientBeanShell implements Runnable
       interpreter.eval("import sonia.app.bbb2influxdb.*;");
       interpreter.eval("import sonia.app.bbb2influxdb.config.*;");
       interpreter.eval("import sonia.commons.bigbluebutton.client.*;");
+      interpreter.eval("importCommands(\"sonia.app.bbb2influxdb.beanshell\");");
       interpreter.set( "out", out );
+      interpreter.set( "thisClientSocket", client );
       interpreter.setShowResults(true);
       interpreter.run();
-
-      out.println("\nGoodbye");
 
       client.close();
     }
@@ -103,6 +103,8 @@ public class ConsoleClientBeanShell implements Runnable
     {
       LOGGER.error("Error closing connection", ex);
     }
+
+    LOGGER.info( "Client connection ended" );
   }
 
 }
