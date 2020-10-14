@@ -15,7 +15,7 @@ public class help
     + "buildInfo();     : show current build info'\n"
     + "quit();          : closing connection\n"
     + "reloadconfig();  : reload configuration from config.xml file'\n"
-    + "shutdown();      : shutdown the application - same as 'exit();'\n"
+    + "shutdown();      : shutdown the application - same as 'System.exit(0);'\n"
     + "savestate();     : saving current global statistics to save.xml'\n"
     );
   }
