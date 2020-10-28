@@ -24,8 +24,7 @@ import sonia.commons.bigbluebutton.client.GlobalStatistics;
 
 /**
  *
- * @author Thorsten Ludewig <t.ludewig@ostfalia.de>Thosten Ludewig
- * <t.ludewig@ostfalia.de>
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>
  */
 public class App
 {

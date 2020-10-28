@@ -13,7 +13,7 @@ import lombok.ToString;
 
 /**
  *
- * @author Thorsten Ludewig <t.ludewig@ostfalia.de>your name
+ * @author Thorsten Ludewig <t.ludewig@gmail.de>
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

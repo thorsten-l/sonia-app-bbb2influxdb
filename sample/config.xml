@@ -3,6 +3,9 @@
   <configName>all.bbb</configName>
   <timezone>Europe/Berlin</timezone>
   <interval>60</interval>
+  <clearStatisticsEnabled>true</clearStatisticsEnabled>
+  <clearStatisticsCron>0 11 4 * * ?</clearStatisticsCron>
+  <consolePort>8642</consolePort>
   <dbUrl>http://localhost:8086/write?db=bbb</dbUrl>
   <dbUser>influxdb</dbUser>
   <dbPassword>...your...influxdb...password...</dbPassword>
