@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -33,6 +35,9 @@ public class GlobalStatistics implements Serializable
 
   private GlobalStatistics()
   {
+    clearStatisticsLock = new ReentrantLock();
+    statisticsCleared = false;
+    statisticsClearedTimestamp = 0l;
   }
 
   public static GlobalStatistics getInstance()
@@ -168,6 +173,16 @@ public class GlobalStatistics implements Serializable
             0l);
         }
 
+        if ( GS.statisticsCleared )
+        {
+          meeting.setInvalid(true);
+        }
+ 
+        if( meeting.isInvalid() )
+        {
+          d = 0l;
+        }
+        
         if (d < 1440)
         {
           GS.closedMeetingsDuration += d;
@@ -186,10 +201,13 @@ public class GlobalStatistics implements Serializable
     {
       GS.averageClosedMeetingsDuration = avgDuration / avgCounter;
     }
+    
+    GS.statisticsCleared = false;
   }
 
   public static void clearAndLog(String currentDate)
   {
+    GS.statisticsClearedTimestamp = System.currentTimeMillis();
     try
     {
       try (PrintWriter writer = new PrintWriter("unique-meetings-" + currentDate
@@ -218,6 +236,7 @@ public class GlobalStatistics implements Serializable
     GS.allUsersPerOrigin.clear();
     GS.uniqueUsersInMeetings.clear();
     GS.averageClosedMeetingsDuration = 0;
+    GS.statisticsCleared = true;
   }
 
   public static void clearOrigins()
@@ -227,6 +246,16 @@ public class GlobalStatistics implements Serializable
     GS.allUsersPerOrigin.put("moodle", 0l);
     GS.allUsersPerOrigin.put("greenlight", 0l);
     GS.currentMeetings.clear();
+  }
+  
+  public static void lock()
+  {
+    GS.clearStatisticsLock.lock();
+  }
+
+  public static void unlock()
+  {
+    GS.clearStatisticsLock.unlock();
   }
 
   private HashSet<String> uniqueUsers = new HashSet();
@@ -242,6 +271,10 @@ public class GlobalStatistics implements Serializable
   @Getter
   private HashMap<String, Long> allUsersPerOrigin = new HashMap();
 
+  private transient Lock clearStatisticsLock;
+  private boolean statisticsCleared;
+  private long statisticsClearedTimestamp;
+  
   @Getter
   private long closedMeetingsDuration;
 

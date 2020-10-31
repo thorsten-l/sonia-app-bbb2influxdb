@@ -20,7 +20,7 @@ import sonia.commons.bigbluebutton.client.Statistics;
 
 /**
  *
- * @author Thorsten Ludewig <t.ludewig@ostfalia.de>th
+ * @author Thorsten Ludewig <t.ludewig@ostfalia.de>
  */
 public class TransferTask extends TimerTask
 {
@@ -48,6 +48,7 @@ public class TransferTask extends TimerTask
     int numberOfListenOnlyStreams = 0;
     int numberOfViewerOnlyStreams = 0;
     
+    GlobalStatistics.lock();
     GlobalStatistics.clearOrigins();
     
     for (Host host : config.getHosts())
@@ -189,6 +190,7 @@ public class TransferTask extends TimerTask
       }
     } 
     
+    GlobalStatistics.unlock();
     System.gc();
   }
 }

@@ -210,7 +210,7 @@
               <goal>upload-single</goal>
             </goals>
             <configuration>
-              <url>file://private</url>
+              <url>file://.</url>
               <fromFile>${project.build.directory}/bbb2influxdb.jar</fromFile>
             </configuration>
           </execution>

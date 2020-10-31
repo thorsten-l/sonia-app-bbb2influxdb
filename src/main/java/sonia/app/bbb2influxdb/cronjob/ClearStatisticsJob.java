@@ -23,7 +23,9 @@ public class ClearStatisticsJob implements Job
   public void execute(JobExecutionContext jec) throws JobExecutionException
   {
     LOGGER.info("Clear statistic data");
+    GlobalStatistics.lock();
     GlobalStatistics.clearAndLog(FORMAT.format(new Date()));
     GlobalStatistics.clearOrigins();
+    GlobalStatistics.unlock();
   }
 }

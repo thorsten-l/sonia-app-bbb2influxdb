@@ -71,6 +71,10 @@ public class Meeting
   private boolean hasBeenForciblyEnded;
 
   @Getter
+  @Setter
+  private boolean invalid;
+
+  @Getter
   private long startTime;
 
   @Getter
