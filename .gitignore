@@ -8,3 +8,4 @@ config.xml
 save.xml
 rebel.xml
 bbb2influxdb.jar
+unique-meetings-*.xml
