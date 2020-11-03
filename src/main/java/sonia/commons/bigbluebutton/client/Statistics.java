@@ -35,6 +35,7 @@ public class Statistics
       for (Meeting meeting : meetings)
       {
         GlobalStatistics.storeUniqueMeeting(meeting);
+        maxVideostreamsInSingleMeeting = Math.max(maxVideostreamsInSingleMeeting, meeting.getVideoCount());
         
         // System.out.println( hostname + ":" + meeting );
         
@@ -118,4 +119,6 @@ public class Statistics
   @Getter
   private int numberOfViewerOnlyStreams;
 
+  @Getter
+  private int maxVideostreamsInSingleMeeting;
 }

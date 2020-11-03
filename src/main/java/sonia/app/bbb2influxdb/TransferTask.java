@@ -77,6 +77,7 @@ public class TransferTask extends TimerTask
         message += "listenOnly,host=" + hostname + " value=" + statistics.getNumberOfListenOnlyStreams() + "\n";
         message += "viewerOnly,host=" + hostname + " value=" + statistics.getNumberOfViewerOnlyStreams() + "\n";
         message += "largestConference,host=" + hostname + " value=" + statistics.getLargestConference() + "\n";
+        message += "maxVideostreamsInSingleMeeting,host=" + hostname + " value=" + statistics.getMaxVideostreamsInSingleMeeting() + "\n";
         message += "uniqueUsers,host=" + hostname + " value=" + GlobalStatistics.getNumberOfUniqueUsers(hostname) + "\n";
                 
         HashMap<String, Long> usersPerOrigin = statistics.getUsersPerOrigin();
@@ -121,6 +122,7 @@ public class TransferTask extends TimerTask
       message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + gs.getClosedMeetingsCounter() + "\n";
       message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + gs.getAverageClosedMeetingsDuration() + "\n";
       message += "runningMeetingsCounter,host=" + config.getConfigName() + " value=" + gs.getRunningMeetingsCounter() + "\n";
+      message += "maxVideostreamsInSingleMeeting,host=" + config.getConfigName() + " value=" + gs.getMaxVideostreamsInSingleMeeting() + "\n";
   
       HashMap<String, Long> usersPerOrigin = gs.getAllUsersPerOrigin();
 

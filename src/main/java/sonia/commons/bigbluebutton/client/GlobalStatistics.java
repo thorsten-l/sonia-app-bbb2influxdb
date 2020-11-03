@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class GlobalStatistics implements Serializable
 {
   private static final long serialVersionUID = 38315001L;
-  
+
   final static Logger LOGGER = LoggerFactory.getLogger(GlobalStatistics.class.
     getName());
 
@@ -44,11 +44,11 @@ public class GlobalStatistics implements Serializable
   {
     return GS;
   }
-  
-  public static void readSavedState( File saveFile )
+
+  public static void readSavedState(File saveFile)
   {
-    GS = JAXB.unmarshal( saveFile, GlobalStatistics.class );
-    LOGGER.info( "read saved state done.");
+    GS = JAXB.unmarshal(saveFile, GlobalStatistics.class);
+    LOGGER.info("read saved state done.");
   }
 
   public static void initializePerHost(String hostname)
@@ -67,6 +67,8 @@ public class GlobalStatistics implements Serializable
   {
     GS.uniqueMeetings.put(meeting.getInternalMeetingID(), meeting);
     GS.currentMeetings.put(meeting.getInternalMeetingID(), meeting);
+    GS.maxVideostreamsInSingleMeeting = Math.max(
+      GS.maxVideostreamsInSingleMeeting, meeting.getVideoCount());
   }
 
   public static void addAllUsersPerOrigin(String origin, Meeting meeting)
@@ -173,16 +175,16 @@ public class GlobalStatistics implements Serializable
             0l);
         }
 
-        if ( GS.statisticsCleared )
+        if (GS.statisticsCleared)
         {
           meeting.setInvalid(true);
         }
- 
-        if( meeting.isInvalid() )
+
+        if (meeting.isInvalid())
         {
           d = 0l;
         }
-        
+
         if (d < 1440)
         {
           GS.closedMeetingsDuration += d;
@@ -201,7 +203,7 @@ public class GlobalStatistics implements Serializable
     {
       GS.averageClosedMeetingsDuration = avgDuration / avgCounter;
     }
-    
+
     GS.statisticsCleared = false;
   }
 
@@ -236,6 +238,7 @@ public class GlobalStatistics implements Serializable
     GS.allUsersPerOrigin.clear();
     GS.uniqueUsersInMeetings.clear();
     GS.averageClosedMeetingsDuration = 0;
+    GS.maxVideostreamsInSingleMeeting = 0;
     GS.statisticsCleared = true;
   }
 
@@ -247,7 +250,7 @@ public class GlobalStatistics implements Serializable
     GS.allUsersPerOrigin.put("greenlight", 0l);
     GS.currentMeetings.clear();
   }
-  
+
   public static void lock()
   {
     GS.clearStatisticsLock.lock();
@@ -272,9 +275,11 @@ public class GlobalStatistics implements Serializable
   private HashMap<String, Long> allUsersPerOrigin = new HashMap();
 
   private transient Lock clearStatisticsLock;
+
   private boolean statisticsCleared;
+
   private long statisticsClearedTimestamp;
-  
+
   @Getter
   private long closedMeetingsDuration;
 
@@ -286,4 +291,7 @@ public class GlobalStatistics implements Serializable
 
   @Getter
   private int runningMeetingsCounter;
+
+  @Getter
+  private int maxVideostreamsInSingleMeeting;
 }
