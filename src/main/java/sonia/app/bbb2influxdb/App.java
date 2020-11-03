@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.Timer;
 import javax.xml.bind.JAXB;
@@ -31,6 +32,9 @@ public class App
   private static final String CONFIGURATION = "config.xml";
 
   private static final String SAVE_STATE = "save.xml";
+
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
+    "YYYYMMddHHmmss");
 
   final static Logger LOGGER = LoggerFactory.getLogger(App.class.
     getName());
@@ -93,6 +97,10 @@ public class App
     {
       JAXB.marshal(GlobalStatistics.getInstance(),
         new FileWriter(SAVE_STATE));
+      // Backup of save state
+      JAXB.marshal(GlobalStatistics.getInstance(),
+        new FileWriter(SAVE_STATE + "." + DATE_FORMAT.format(
+          new java.util.Date())));
     }
     catch (IOException ex)
     {
