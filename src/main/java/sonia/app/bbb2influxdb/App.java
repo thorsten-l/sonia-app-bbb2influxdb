@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.Timer;
 import javax.xml.bind.JAXB;
+import lombok.Getter;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -39,6 +40,7 @@ public class App
   final static Logger LOGGER = LoggerFactory.getLogger(App.class.
     getName());
 
+  @Getter
   private static Configuration config;
 
   public static void buildInfo(PrintStream out)

@@ -1,5 +1,6 @@
 package sonia.app.bbb2influxdb;
 
+import com.google.common.base.Strings;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -28,7 +29,7 @@ public class TransferTask extends TimerTask
     getName());
 
   private Configuration config;
-  
+
   public TransferTask(Configuration config)
   {
     this.config = config;
@@ -38,7 +39,7 @@ public class TransferTask extends TimerTask
   public void run()
   {
     LOGGER.info("Running transfer task.");
-    
+
     String message = "";
     int numberOfMeetings = 0;
     int largestConference = 0;
@@ -47,90 +48,123 @@ public class TransferTask extends TimerTask
     int numberOfVideoStreams = 0;
     int numberOfListenOnlyStreams = 0;
     int numberOfViewerOnlyStreams = 0;
-    
+
     GlobalStatistics.lock();
     GlobalStatistics.clearOrigins();
-    
+
     for (Host host : config.getHosts())
     {
-      String hostname = host.getHostname();
-      LOGGER.info("Getting statistics for host = {}", hostname);
-      try
+      if (host.isOffline() || Strings.isNullOrEmpty(host.getSecret()))
       {
-        BbbClient client = BbbClientFactory.createClient(host.getApiUrl(), host.
-          getSecret());
-
-        Statistics statistics = client.getStatistics(hostname);
-
-        numberOfMeetings += statistics.getNumberOfMeetings();
-        largestConference = Math.max( largestConference, statistics.getLargestConference());
-        numberOfUsers += statistics.getNumberOfUsers();
-        numberOfAudioStreams += statistics.getNumberOfAudioStreams();
-        numberOfVideoStreams += statistics.getNumberOfVideoStreams();
-        numberOfListenOnlyStreams += statistics.getNumberOfListenOnlyStreams();
-        numberOfViewerOnlyStreams += statistics.getNumberOfViewerOnlyStreams();
-        
-        message += "meetings,host=" + hostname + " value=" + statistics.getNumberOfMeetings() + "\n";
-        message += "users,host=" + hostname + " value=" + statistics.getNumberOfUsers() + "\n";
-        message += "audio,host=" + hostname + " value=" + statistics.getNumberOfAudioStreams() + "\n";
-        message += "video,host=" + hostname + " value=" + statistics.getNumberOfVideoStreams() + "\n";
-        message += "listenOnly,host=" + hostname + " value=" + statistics.getNumberOfListenOnlyStreams() + "\n";
-        message += "viewerOnly,host=" + hostname + " value=" + statistics.getNumberOfViewerOnlyStreams() + "\n";
-        message += "largestConference,host=" + hostname + " value=" + statistics.getLargestConference() + "\n";
-        message += "maxVideostreamsInSingleMeeting,host=" + hostname + " value=" + statistics.getMaxVideostreamsInSingleMeeting() + "\n";
-        message += "uniqueUsers,host=" + hostname + " value=" + GlobalStatistics.getNumberOfUniqueUsers(hostname) + "\n";
-                
-        HashMap<String, Long> usersPerOrigin = statistics.getUsersPerOrigin();
-        
-        if ( !usersPerOrigin.isEmpty() )
+        LOGGER.info("Host '{}' is marked OFFLINE or has no secret.", host.getHostname());
+      }
+      else
+      {
+        String hostname = host.getHostname();
+        LOGGER.info("Getting statistics for host = {}", hostname);
+        try
         {
-          char seperator = ' ';
-          message += "usersPerOrigin,host=" + hostname;
-          for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+          BbbClient client = BbbClientFactory.createClient(host.getApiUrl(),
+            host.
+              getSecret());
+
+          Statistics statistics = client.getStatistics(hostname);
+
+          numberOfMeetings += statistics.getNumberOfMeetings();
+          largestConference = Math.max(largestConference, statistics.
+            getLargestConference());
+          numberOfUsers += statistics.getNumberOfUsers();
+          numberOfAudioStreams += statistics.getNumberOfAudioStreams();
+          numberOfVideoStreams += statistics.getNumberOfVideoStreams();
+          numberOfListenOnlyStreams += statistics.getNumberOfListenOnlyStreams();
+          numberOfViewerOnlyStreams += statistics.getNumberOfViewerOnlyStreams();
+
+          message += "meetings,host=" + hostname + " value=" + statistics.
+            getNumberOfMeetings() + "\n";
+          message += "users,host=" + hostname + " value=" + statistics.
+            getNumberOfUsers() + "\n";
+          message += "audio,host=" + hostname + " value=" + statistics.
+            getNumberOfAudioStreams() + "\n";
+          message += "video,host=" + hostname + " value=" + statistics.
+            getNumberOfVideoStreams() + "\n";
+          message += "listenOnly,host=" + hostname + " value=" + statistics.
+            getNumberOfListenOnlyStreams() + "\n";
+          message += "viewerOnly,host=" + hostname + " value=" + statistics.
+            getNumberOfViewerOnlyStreams() + "\n";
+          message += "largestConference,host=" + hostname + " value="
+            + statistics.getLargestConference() + "\n";
+          message += "maxVideostreamsInSingleMeeting,host=" + hostname
+            + " value=" + statistics.getMaxVideostreamsInSingleMeeting() + "\n";
+          message += "uniqueUsers,host=" + hostname + " value="
+            + GlobalStatistics.getNumberOfUniqueUsers(hostname) + "\n";
+
+          HashMap<String, Long> usersPerOrigin = statistics.getUsersPerOrigin();
+
+          if (!usersPerOrigin.isEmpty())
           {
-            long users = usersPerOrigin.get(origin);
-            message += seperator + origin + "=" + users;
-            seperator = ',';
+            char seperator = ' ';
+            message += "usersPerOrigin,host=" + hostname;
+            for (String origin : usersPerOrigin.keySet().toArray(new String[0]))
+            {
+              long users = usersPerOrigin.get(origin);
+              message += seperator + origin + "=" + users;
+              seperator = ',';
+            }
+            message += "\n";
           }
-          message += "\n";
+        }
+        catch (Exception e)
+        {
+          LOGGER.error("Reading statistics for host=" + host.getHostname(), e);
         }
       }
-      catch (Exception e)
-      {
-        LOGGER.error("Reading statistics for host=" + host.getHostname(), e);
-      }
     }
-    
+
     if (message.length() > 0)
     {
       GlobalStatistics.computeMeetingStatistics();
 
-      message += "meetings,host=" + config.getConfigName() + " value=" + numberOfMeetings + "\n";
-      message += "users,host=" + config.getConfigName() + " value=" + numberOfUsers + "\n";
-      message += "audio,host=" + config.getConfigName() + " value=" + numberOfAudioStreams + "\n";
-      message += "video,host=" + config.getConfigName() + " value=" + numberOfVideoStreams + "\n";
-      message += "listenOnly,host=" + config.getConfigName() + " value=" + numberOfListenOnlyStreams + "\n";
-      message += "viewerOnly,host=" + config.getConfigName() + " value=" + numberOfViewerOnlyStreams + "\n";
-      message += "largestConference,host=" + config.getConfigName() + " value=" + largestConference + "\n";
-      
+      message += "meetings,host=" + config.getConfigName() + " value="
+        + numberOfMeetings + "\n";
+      message += "users,host=" + config.getConfigName() + " value="
+        + numberOfUsers + "\n";
+      message += "audio,host=" + config.getConfigName() + " value="
+        + numberOfAudioStreams + "\n";
+      message += "video,host=" + config.getConfigName() + " value="
+        + numberOfVideoStreams + "\n";
+      message += "listenOnly,host=" + config.getConfigName() + " value="
+        + numberOfListenOnlyStreams + "\n";
+      message += "viewerOnly,host=" + config.getConfigName() + " value="
+        + numberOfViewerOnlyStreams + "\n";
+      message += "largestConference,host=" + config.getConfigName() + " value="
+        + largestConference + "\n";
+
       GlobalStatistics gs = GlobalStatistics.getInstance();
-      
-      message += "uniqueUsers,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueUsers() + "\n";
-      message += "uniqueMeetings,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueMeetings() + "\n";
-      message += "uniqueUsersInMeetings,host=" + config.getConfigName() + " value=" + GlobalStatistics.getNumberOfUniqueUsersInMeetings() + "\n";
-      message += "closedMeetingsDuration,host=" + config.getConfigName() + " value=" + gs.getClosedMeetingsDuration() + "\n";
-      message += "closedMeetingsCounter,host=" + config.getConfigName() + " value=" + gs.getClosedMeetingsCounter() + "\n";
-      message += "closedMeetingsAverageDuration,host=" + config.getConfigName() + " value=" + gs.getAverageClosedMeetingsDuration() + "\n";
-      message += "runningMeetingsCounter,host=" + config.getConfigName() + " value=" + gs.getRunningMeetingsCounter() + "\n";
-      message += "maxVideostreamsInSingleMeeting,host=" + config.getConfigName() + " value=" + gs.getMaxVideostreamsInSingleMeeting() + "\n";
-  
+
+      message += "uniqueUsers,host=" + config.getConfigName() + " value="
+        + GlobalStatistics.getNumberOfUniqueUsers() + "\n";
+      message += "uniqueMeetings,host=" + config.getConfigName() + " value="
+        + GlobalStatistics.getNumberOfUniqueMeetings() + "\n";
+      message += "uniqueUsersInMeetings,host=" + config.getConfigName()
+        + " value=" + GlobalStatistics.getNumberOfUniqueUsersInMeetings() + "\n";
+      message += "closedMeetingsDuration,host=" + config.getConfigName()
+        + " value=" + gs.getClosedMeetingsDuration() + "\n";
+      message += "closedMeetingsCounter,host=" + config.getConfigName()
+        + " value=" + gs.getClosedMeetingsCounter() + "\n";
+      message += "closedMeetingsAverageDuration,host=" + config.getConfigName()
+        + " value=" + gs.getAverageClosedMeetingsDuration() + "\n";
+      message += "runningMeetingsCounter,host=" + config.getConfigName()
+        + " value=" + gs.getRunningMeetingsCounter() + "\n";
+      message += "maxVideostreamsInSingleMeeting,host=" + config.getConfigName()
+        + " value=" + gs.getMaxVideostreamsInSingleMeeting() + "\n";
+
       HashMap<String, Long> usersPerOrigin = gs.getAllUsersPerOrigin();
 
-      if ( !usersPerOrigin.isEmpty() )
+      if (!usersPerOrigin.isEmpty())
       {
         message += "usersPerOrigin,host=" + config.getConfigName();
         char seperator = ' ';
-        for( String origin : usersPerOrigin.keySet().toArray(new String[0]))
+        for (String origin : usersPerOrigin.keySet().toArray(new String[0]))
         {
           long users = usersPerOrigin.get(origin);
           message += seperator + origin + "=" + users;
@@ -138,7 +172,7 @@ public class TransferTask extends TimerTask
         }
         message += "\n";
       }
-      
+
       HttpURLConnection connection = null;
 
       try
@@ -153,7 +187,7 @@ public class TransferTask extends TimerTask
           StandardCharsets.UTF_8));
         String authHeaderValue = "Basic " + new String(encodedAuth);
         connection.setRequestProperty("Authorization", authHeaderValue);
-        
+
         try (PrintWriter writer = new PrintWriter(connection.getOutputStream()))
         {
           writer.write(message);
@@ -190,8 +224,8 @@ public class TransferTask extends TimerTask
           connection.disconnect();
         }
       }
-    } 
-    
+    }
+
     GlobalStatistics.unlock();
     System.gc();
   }

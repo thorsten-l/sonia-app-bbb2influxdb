@@ -63,9 +63,10 @@ public class GlobalStatistics implements Serializable
     }
   }
 
-  public static void storeUniqueMeeting(Meeting meeting)
+  public static void storeUniqueMeeting(Meeting meeting, String hostname )
   {
     GS.uniqueMeetings.put(meeting.getInternalMeetingID(), meeting);
+    GS.uniqueMeetingsHosts.put(meeting.getInternalMeetingID(), hostname);
     GS.currentMeetings.put(meeting.getInternalMeetingID(), meeting);
     GS.maxVideostreamsInSingleMeeting = Math.max(
       GS.maxVideostreamsInSingleMeeting, meeting.getVideoCount());
@@ -235,6 +236,7 @@ public class GlobalStatistics implements Serializable
 
     GS.uniqueUsers.clear();
     GS.uniqueMeetings.clear();
+    GS.uniqueMeetingsHosts.clear();
     GS.allUsersPerOrigin.clear();
     GS.uniqueUsersInMeetings.clear();
     GS.averageClosedMeetingsDuration = 0;
@@ -267,7 +269,11 @@ public class GlobalStatistics implements Serializable
 
   private HashMap<String, HashSet<String>> uniqueUsersPerHost = new HashMap();
 
+  @Getter
   private HashMap<String, Meeting> uniqueMeetings = new HashMap();
+  
+  @Getter
+  private HashMap<String, String> uniqueMeetingsHosts = new HashMap();
 
   private HashMap<String, Meeting> currentMeetings = new HashMap();
 

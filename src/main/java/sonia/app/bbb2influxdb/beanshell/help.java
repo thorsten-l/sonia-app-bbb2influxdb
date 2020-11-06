@@ -16,7 +16,11 @@ public class help
     + "quit();          : closing connection\n"
     + "reloadconfig();  : reload configuration from config.xml file'\n"
     + "shutdown();      : shutdown the application - same as 'System.exit(0);'\n"
-    + "savestate();     : saving current global statistics to save.xml'\n"
+    + "savestate();     : saving current global statistics to save.xml'\n\n"
+    + "nodeInfo(String name);  : info for one node'\n"
+    + "nodeList();             : list all nodes'\n"
+    + "nodeSetOffline(String name, boolean offline);\n"
+    + "                        : set node offline or online'\n"
     );
   }
 }

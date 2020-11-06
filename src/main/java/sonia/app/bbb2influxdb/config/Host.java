@@ -25,5 +25,9 @@ public class Host
 
   @Getter
   @Setter
-  private String secret;  
+  private String secret;
+
+  @Getter
+  @Setter
+  private boolean offline;
 }
