@@ -23,6 +23,9 @@ public class help
     + "                        : set node offline or online'\n\n"
     + "meetingList();                : list all meetings'\n"
     + "meetingList(String nodename); : list all meetings of the specified node'\n"
+    + "meetingInfo(String id);       : info for one meeting'\n"
+    + "meetingSearch(String search); : search for meeting name and context name'\n\n"
+    + "attendeeSearch(String search); : search for attendee in meetings'\n"
     );
   }
 }
