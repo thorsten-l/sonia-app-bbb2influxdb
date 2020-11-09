@@ -39,6 +39,11 @@ public class Statistics
         
         // System.out.println( hostname + ":" + meeting );
         
+        if ( meeting.isBreakout() )
+        {
+          numberOfBreakoutMeetings++;
+        }
+        
         int participantCount = meeting.getParticipantCount();
         numberOfUsers += participantCount;
         largestConference = Math.max(largestConference, participantCount);
@@ -118,6 +123,9 @@ public class Statistics
 
   @Getter
   private int numberOfViewerOnlyStreams;
+
+  @Getter
+  private int numberOfBreakoutMeetings;
 
   @Getter
   private int maxVideostreamsInSingleMeeting;

@@ -81,6 +81,8 @@ public class TransferTask extends TimerTask
 
           message += "meetings,host=" + hostname + " value=" + statistics.
             getNumberOfMeetings() + "\n";
+          message += "breakoutMeetings,host=" + hostname + " value="
+            + statistics.getNumberOfBreakoutMeetings() + "\n";
           message += "users,host=" + hostname + " value=" + statistics.
             getNumberOfUsers() + "\n";
           message += "audio,host=" + hostname + " value=" + statistics.

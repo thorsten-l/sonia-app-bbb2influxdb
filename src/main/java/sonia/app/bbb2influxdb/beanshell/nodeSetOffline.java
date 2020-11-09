@@ -17,7 +17,7 @@ import sonia.app.bbb2influxdb.config.Host;
  */
 public class nodeSetOffline
 {
-  final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(quit.class.
+  final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(nodeSetOffline.class.
     getName());
 
   public static void invoke(Interpreter env, CallStack callstack, String name, boolean offline)

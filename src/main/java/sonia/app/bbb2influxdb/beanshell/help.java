@@ -20,7 +20,9 @@ public class help
     + "nodeInfo(String name);  : info for one node'\n"
     + "nodeList();             : list all nodes'\n"
     + "nodeSetOffline(String name, boolean offline);\n"
-    + "                        : set node offline or online'\n"
+    + "                        : set node offline or online'\n\n"
+    + "meetingList();                : list all meetings'\n"
+    + "meetingList(String nodename); : list all meetings of the specified node'\n"
     );
   }
 }
